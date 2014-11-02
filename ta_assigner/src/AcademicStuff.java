@@ -5,6 +5,7 @@
  * @generated
  */
 //Akademi spor
+//Bok var branch te :D
 public abstract class AcademicStuff
 {
 	/**
