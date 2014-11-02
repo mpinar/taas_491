@@ -4,7 +4,7 @@
  * <!--  end-user-doc  -->
  * @generated
  */
-
+//Akademi spor
 public abstract class AcademicStuff
 {
 	/**
