@@ -78,13 +78,16 @@ public class TAAS {
 				dbh = new DatabaseHelper();
 				
 				if(dbh.authorizeUser(username, plainPassword)){
-					//System.out.println("oldu bu is");
+					
 					Person p = dbh.getAuthorizedPerson(username);
 					System.out.println(p);
 					
 					if(p.job == JobType.INSTRUCTOR || p.job == JobType.SUPER_INSTRUCTOR){
 						Instructor ins = dbh.getInstructorFromID(p.id);
-						
+						ins.setSuperFields(p.name, p.surname, p.username, p.isAdmin);
+						InstructorView iv = new InstructorView(ins);
+						iv.setVisible(true);
+						frame.dispose();
 					}
 					
 				}else {

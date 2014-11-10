@@ -16,5 +16,16 @@ public class Course
 		super();
 	}
 
+
+	public Course(int id, String title, String deptCode, int courseNumber,int asstCount) {
+		// TODO Auto-generated constructor stub
+		this.id = id;
+		this.title = title;
+		code = deptCode;
+		number = courseNumber;
+		assistantCount = asstCount;
+		
+	}
+
 }
 

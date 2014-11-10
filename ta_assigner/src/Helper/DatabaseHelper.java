@@ -8,6 +8,7 @@ package Helper;
  */
 
 import java.sql.*;
+import java.util.ArrayList;
 
 import Model.*;
 
@@ -219,4 +220,53 @@ public class DatabaseHelper {
 
 		return p;
 	}
+	
+	
+	public ArrayList<Course> getTeachingInformationForInstructor(int instrID){
+		Connection c;
+		ArrayList<Course> coursesHistory = new ArrayList<Course>();
+		try {
+			c = connectToDatabase();
+			String sql = "Select * from teaches where Instructor=?";
+
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(1, instrID);
+
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				
+			}
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Course getCourseInfoFromID(int cID){
+		
+		Connection c;
+		Course course = null;
+		
+		try {
+			c = connectToDatabase();
+			String sql = "Select * From Course where ID =?";
+			
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(1, cID);
+			
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				String title = rs.getString("title");
+				String deptCode = rs.getString("Department_Code");
+				int courseNumber = rs.getInt("number");
+				int asstCount = rs.getInt("assistant_count");
+				
+				course = new Course(cID,title,deptCode,courseNumber,asstCount);
+			}
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return course;
+	}
+	
 }
