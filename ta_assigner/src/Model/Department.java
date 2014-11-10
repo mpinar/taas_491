@@ -9,9 +9,18 @@ public class Department
 	public String code;
 	public String faculty;
 	
-	public Department(){
+	public Department(int i, String n, String c, String f){
 		super();
+		id = i;
+		name = n;
+		code = c;
+		faculty = f;
+		
 	}
 
+	public String toString(){
+		String s ="{\nDept. Name: "+name+"\nDept. Code: "+code+"\nFaculty: "+faculty+"\n}";
+		return s;
+	}
 }
 

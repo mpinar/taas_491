@@ -9,6 +9,7 @@ public class Assistant extends Person
 	public Course academicBackground;
 	public Course teachingBackground;
 	public Request requests;
+	public Department department;
 	
 	public Assistant(){
 		super();
