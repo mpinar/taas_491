@@ -1,59 +1,71 @@
 package View;
 
-import javax.swing.JApplet;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.Color;
-
-import javax.swing.JTextField;
-import javax.swing.JButton;
-
-import Helper.DatabaseHelper;
-import Model.*;
-
-import javax.swing.JPanel;
-
+import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 
-public class TAAS extends JApplet {
+import javax.swing.*;
+
+import Helper.*;
+import Model.*;
+
+public class TAAS {
+
+	private JFrame frame;
 	private JTextField tfUsername;
 	private JTextField tfPassword;
 	private DatabaseHelper dbh;
-	
 	/**
-	 * Create the applet.
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					TAAS window = new TAAS();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the application.
 	 */
 	public TAAS() {
-		getContentPane().setLayout(null);
-		
-		final JPanel panel = new JPanel();
-		panel.setBounds(6, 6, 750, 300);
-		getContentPane().add(panel);
-		panel.setLayout(null);
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 450, 300);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
 		
 		JLabel lblPassword = new JLabel("Password : ");
 		lblPassword.setBounds(85, 119, 71, 16);
-		panel.add(lblPassword);
+		frame.getContentPane().add(lblPassword);
 		
 		tfUsername = new JTextField();
 	
 		tfUsername.setBounds(168, 72, 218, 28);
 		tfUsername.setColumns(17);
-		panel.add(tfUsername);
+		frame.getContentPane().add(tfUsername);
 		
 		JLabel lblUsername = new JLabel("Username : ");
 		lblUsername.setBounds(82, 78, 74, 16);
-		panel.add(lblUsername);
+		frame.getContentPane().add(lblUsername);
 		
-		tfPassword = new JTextField();
+		tfPassword = new JPasswordField();
 	
 		tfPassword.setBounds(168, 113, 218, 28);
 		tfPassword.setColumns(10);
-		panel.add(tfPassword);
+		frame.getContentPane().add(tfPassword);
 		
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addMouseListener(new MouseAdapter() {
@@ -66,9 +78,17 @@ public class TAAS extends JApplet {
 				dbh = new DatabaseHelper();
 				
 				if(dbh.authorizeUser(username, plainPassword)){
-					System.out.println("oldu bu is");
+					//System.out.println("oldu bu is");
+					Person p = dbh.getAuthorizedPerson(username);
+					System.out.println(p);
+					
+					if(p.job == JobType.INSTRUCTOR || p.job == JobType.SUPER_INSTRUCTOR){
+						Instructor ins = dbh.getInstructorFromID(p.id);
+						
+					}
+					
 				}else {
-					JOptionPane.showMessageDialog(panel,
+					JOptionPane.showMessageDialog(frame,
 						    "\tInvalid username/password.\n\tPlease try again.",
 						    "Login Error",
 						    JOptionPane.ERROR_MESSAGE);
@@ -76,8 +96,10 @@ public class TAAS extends JApplet {
 				
 			}
 		});
-		btnLogin.setBounds(236, 153, 79, 29);
-		panel.add(btnLogin);
+		btnLogin.setBounds(218, 153, 117, 29);
+		frame.getContentPane().add(btnLogin);
 
+		
+		
 	}
 }
