@@ -7,6 +7,8 @@ public class Course
 	public String code;
 	public int number;
 	public int assistantCount;
+	public int year;
+	public String semester;
 	public AcademicStuff activities;
 	public Assistant assistants;
 	public Instructor instructors;
@@ -27,5 +29,11 @@ public class Course
 		
 	}
 
+	public String toString(){
+		String s = null;
+
+		s = "["+code+" "+number+" - " + title + "]";
+		return s; 
+	}
 }
 

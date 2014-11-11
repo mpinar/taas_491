@@ -1,9 +1,12 @@
 package Model;
+import Helper.Pair;
 
-public abstract class AcademicStuff
+public class AcademicStuff
 {
 	public int sectionNumber;
-	
+	public Academics type;
+	public Pair<Day,TimeSlot> time;
+
 	public AcademicStuff(){
 		super();
 	}

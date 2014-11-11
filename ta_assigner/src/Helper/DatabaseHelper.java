@@ -21,6 +21,8 @@ public class DatabaseHelper {
 	static final String DB_UNAME = "TAAS"; 
 	static final String DB_PASS = "SAAT";
 
+	private static int selectedYear = 2014;
+	private static String selectedSemester = "FALL";
 	// Encryption properties
 	private EncryptionHelper bcrypt = null;
 
@@ -135,7 +137,7 @@ public class DatabaseHelper {
 
 				dept = new Department(dept_id, n, code, f);
 			}
-			
+
 			c.close();
 		} catch (InstantiationException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
@@ -162,9 +164,9 @@ public class DatabaseHelper {
 				int deptID = result.getInt("department_ID");
 				Department d = getDepartmentInformation(deptID);
 				ins = new Instructor(instrID, personID,d);
-				
+
 			}
-			
+
 			c.close();
 		} catch (InstantiationException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
@@ -191,9 +193,9 @@ public class DatabaseHelper {
 			ps.setString(1, username);
 
 			ResultSet rs = ps.executeQuery();
-		
+
 			int count = 1 ; // rs.getInt(1);
-			
+
 			if(count > 1){
 				System.err.println("ERROR:Bu mail ile birden fazla kullanici var");
 				System.exit(1);
@@ -208,7 +210,7 @@ public class DatabaseHelper {
 						boolean isAdmin = rs.getBoolean("isAdmin");
 						p = new Person(personID, fname, lname, mail, isAdmin, JobType.INSTRUCTOR);
 					}else { // Person is an Assistant
-						
+
 					}
 				}
 			}
@@ -220,53 +222,105 @@ public class DatabaseHelper {
 
 		return p;
 	}
-	
-	
+
+
 	public ArrayList<Course> getTeachingInformationForInstructor(int instrID){
 		Connection c;
 		ArrayList<Course> coursesHistory = new ArrayList<Course>();
 		try {
 			c = connectToDatabase();
-			String sql = "Select * from teaches where Instructor=?";
+			String sql = "Select Course_ID,Section_ID from teaches where Instructor_ID=?";
 
 			PreparedStatement ps = c.prepareStatement(sql);
 			ps.setInt(1, instrID);
 
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
-				
+				int courseID = rs.getInt("Course_ID");
+				int sectionID = rs.getInt("Section_ID");
+
+				Course course = getCourseInfoFromID(courseID);
+
+				coursesHistory.add(course);
 			}
+			c.close();
+
 		}catch (InstantiationException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
 		}
+
+		return coursesHistory;
 	}
-	
+
+	public ArrayList<AcademicStuff> getEventsForACourse(int cID){ // TODO
+		Connection c;
+		ArrayList<AcademicStuff> as = new ArrayList<AcademicStuff>();
+		AcademicStuff a = null;
+		try {
+			c = connectToDatabase();
+			String sql = "select * from section where Course_ID =? and semester =? AND year =?";
+
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(1, cID);
+			ps.setString(2, selectedSemester);
+			ps.setInt(3, selectedYear);
+
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				
+				a = new AcademicStuff();
+				a.sectionNumber = rs.getInt("sectionNumber");
+				
+				
+				// TODO : burada sikinti var cok if elseif 
+				Academics ac = Academics.getAcademicStuff(rs.getInt("academicType"));
+				a.type = ac;
+				
+				//Getting day
+				Day d = Day.getDayFromString(rs.getString("day"));
+				TimeSlot ts = TimeSlot.getTimeSlot(rs.getInt("timeslot"));
+				Pair<Day,TimeSlot> scheduled = new Pair<Day, TimeSlot>(d, ts);
+				a.time = scheduled;
+				
+				as.add(a); // add this academic stuff to arraylist
+			}
+			c.close();
+
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return as;
+	}
+
 	public Course getCourseInfoFromID(int cID){
-		
+
 		Connection c;
 		Course course = null;
-		
+
 		try {
 			c = connectToDatabase();
 			String sql = "Select * From Course where ID =?";
-			
+
 			PreparedStatement ps = c.prepareStatement(sql);
 			ps.setInt(1, cID);
-			
+
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
 				String title = rs.getString("title");
 				String deptCode = rs.getString("Department_Code");
 				int courseNumber = rs.getInt("number");
 				int asstCount = rs.getInt("assistant_count");
-				
+
 				course = new Course(cID,title,deptCode,courseNumber,asstCount);
 			}
+			c.close();
+
 		}catch (InstantiationException | IllegalAccessException | SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return course;
 	}
-	
+
 }

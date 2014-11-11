@@ -31,9 +31,6 @@ public class Instructor extends Person
 				return s;
 	}
 	
-	public void setTeaches(String semester, int year){
-		//get the courses this teaching for semester 'fall' 2014
-		// add them to arraylist
-	}
+	
 }
 

@@ -6,23 +6,32 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
 import Model.*;
 import Helper.*;
+
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
+import javax.swing.JButton;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
 public class InstructorView extends JFrame {
 
 	private JPanel contentPane;
-
+	private DatabaseHelper dbh;
+	
 	private Instructor instructor;
 	/**
 	 * Create the frame.
 	 */
 	public InstructorView(Instructor ins) {
-		
-		ins.setTeaches("FALL", 2014);
-		instructor = ins;
 
+		dbh = new DatabaseHelper();
+		
+		instructor = ins;
+		instructor.teaches = dbh.getTeachingInformationForInstructor(instructor.id);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -39,10 +48,24 @@ public class InstructorView extends JFrame {
 		lblCourses.setBounds(51, 40, 61, 16);
 		contentPane.add(lblCourses);
 
-		JComboBox cbCourses = new JComboBox(ins.teaches.toArray());
+		JComboBox cbCourses = new JComboBox(instructor.teaches.toArray()); // TODO
 		cbCourses.setBounds(124, 36, 107, 27);
 		
 		contentPane.add(cbCourses);
-		
+		if(ins.isAdmin){
+		JButton btnSettings = new JButton("Settings");
+		btnSettings.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				
+				SettingsView sv = new SettingsView();
+				sv.setVisible(true);
+			}
+		});
+		btnSettings.setBounds(327, 243, 117, 29);
+		contentPane.add(btnSettings);
+		}
 	}
+	
+
 }
