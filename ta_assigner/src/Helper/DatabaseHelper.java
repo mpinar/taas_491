@@ -324,4 +324,46 @@ public class DatabaseHelper {
 		return course;
 	}
 
+	public 	ArrayList<Instructor> getInstructorFromCourseID(int cID){
+		
+		Connection c;
+	Instructor ins = null;
+		
+	ArrayList<Instructor> list = new ArrayList<Instructor>();
+		try{
+			c= connectToDatabase();
+			String sql = "Select person.*, ins.department_id ,ins.ID as instructorID from person natural join instructor as ins where ins.ID = ( "
+					+ "select distinct  instructor_ID from teaches natural join section "
+					+ "where year = ? and semester = ? and Course_ID = ?)";
+			
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(3,cID);
+			ps.setInt(1, selectedYear);
+			ps.setString(2, selectedSemester);
+			
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				int iID = rs.getInt("instructorID");
+				int pID = rs.getInt("ID");
+				String name = rs.getString("name");
+				String surname = rs.getString("surname");
+				String mail = rs.getString("mail");
+				boolean isAdmin = rs.getBoolean("isAdmin");
+				JobType j = JobType.getJobType(rs.getInt("jobType"));
+				Department d = getDepartmentInformation(rs.getInt("department_ID"));
+				
+				ins = new Instructor(iID, pID, d);
+				ins.teaches = getTeachingInformationForInstructor(iID);
+				ins.setSuperFields(name, surname, mail, isAdmin);
+				System.out.println(ins);
+				list.add(ins);
+			}
+			
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
+		
+	}
 }

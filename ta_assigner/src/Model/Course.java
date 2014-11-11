@@ -31,6 +31,31 @@ public class Course
 		
 	}
 
+	public int setMaxAssistantCount(){
+		int max = 0;
+		
+		int activityCount = activities.size();
+		
+		if(activityCount<2){
+			max =1;
+		}else if(activityCount <3){
+			max = 2;
+			
+		}else if(activityCount<5){
+			max = 3;
+			
+		}else if(activityCount <8){
+			max = 4;
+			
+		}else if(activityCount <10){
+			max = 6;
+			
+		}else if(activityCount >10){
+			max = 8;
+			
+		}
+		return max;
+	}
 	public String toString(){
 		String s = null;
 
