@@ -1,5 +1,7 @@
 package Model;
 
+import java.util.List;
+
 public class Course
 {
 	public int id;
@@ -9,7 +11,7 @@ public class Course
 	public int assistantCount;
 	public int year;
 	public String semester;
-	public AcademicStuff activities;
+	public List<AcademicStuff> activities;
 	public Assistant assistants;
 	public Instructor instructors;
 	

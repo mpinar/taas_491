@@ -261,9 +261,9 @@ public class DatabaseHelper {
 			String sql = "select * from section where Course_ID =? and semester =? AND year =?";
 
 			PreparedStatement ps = c.prepareStatement(sql);
-			ps.setInt(1, cID);
-			ps.setString(2, selectedSemester);
-			ps.setInt(3, selectedYear);
+			ps.setInt(1, cID); // course id   = 1
+			ps.setString(2, selectedSemester); // fall
+			ps.setInt(3, selectedYear); // 2014
 
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()){
@@ -311,8 +311,9 @@ public class DatabaseHelper {
 				String deptCode = rs.getString("Department_Code");
 				int courseNumber = rs.getInt("number");
 				int asstCount = rs.getInt("assistant_count");
-
+				
 				course = new Course(cID,title,deptCode,courseNumber,asstCount);
+				course.activities = getEventsForACourse(cID);
 			}
 			c.close();
 
