@@ -34,6 +34,7 @@ public class InstructorView extends JFrame {
 		dbh = new DatabaseHelper();
 
 		instructor = ins;
+		final int personID = dbh.getPIDFromInstructor(instructor.id);
 		instructor.teaches = dbh.getTeachingInformationForInstructor(instructor.id);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -96,7 +97,7 @@ public class InstructorView extends JFrame {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 
-					SettingsView sv = new SettingsView();
+					SettingsView sv = new SettingsView(personID);
 					sv.setVisible(true);
 				}
 			});
