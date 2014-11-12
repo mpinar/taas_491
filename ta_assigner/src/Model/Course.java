@@ -38,19 +38,19 @@ public class Course
 		
 		if(activityCount<2){
 			max =1;
-		}else if(activityCount <3){
+		}else if(activityCount>=2 && activityCount <3){
 			max = 2;
 			
-		}else if(activityCount<5){
+		}else if(activityCount>=3 && activityCount<5){
 			max = 3;
 			
-		}else if(activityCount <8){
+		}else if(activityCount>=5 && activityCount <8){
 			max = 4;
 			
-		}else if(activityCount <10){
+		}else if(activityCount>=8 && activityCount <10){
 			max = 6;
 			
-		}else if(activityCount >10){
+		}else if(activityCount >=10){
 			max = 8;
 			
 		}

@@ -22,7 +22,7 @@ public class SettingsView extends JFrame {
 	private JPanel contentPane;
 	private JTextField tfYear;
 	private JTextField newPass;
-	private DatabaseHelper dbh;
+	private DatabaseHelper dbh = new DatabaseHelper();
 	private Instructor ins;
 
 
@@ -75,7 +75,9 @@ public class SettingsView extends JFrame {
 		btnProceed.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e){
 				String newPassword = newPass.getText();
-				dbh.updatePassword(pID, newPassword);
+				System.out.println(pID);
+				String hashed = Helper.EncryptionHelper.generatePass(newPassword);
+				dbh.updatePassword(pID, hashed);
 			}
 		});
 		btnProceed.setBounds(312, 214, 117, 29);

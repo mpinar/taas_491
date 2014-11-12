@@ -10,6 +10,8 @@ package Helper;
 import java.sql.*;
 import java.util.ArrayList;
 
+import javax.jws.Oneway;
+
 import Model.*;
 
 public class DatabaseHelper {
@@ -205,211 +207,214 @@ public class DatabaseHelper {
 
 
 
-/**
- * Returns the user after authorization from it's username
- * @param username
- * @return
- */
-public Person getAuthorizedPerson(String username){
+	/**
+	 * Returns the user after authorization from it's username
+	 * @param username
+	 * @return
+	 */
+	public Person getAuthorizedPerson(String username){
 
-	Connection c;
-	Person p = null;
-	try {
-		c = connectToDatabase();
-		String sql = "select count(id) as count, Person.*  from Person where mail =?";
+		Connection c;
+		Person p = null;
+		try {
+			c = connectToDatabase();
+			String sql = "select count(id) as count, Person.*  from Person where mail =?";
 
-		PreparedStatement ps = c.prepareStatement(sql);
-		ps.setString(1, username);
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setString(1, username);
 
-		ResultSet rs = ps.executeQuery();
+			ResultSet rs = ps.executeQuery();
 
-		int count = 1 ; // rs.getInt(1);
+			int count = 1 ; // rs.getInt(1);
 
-		if(count > 1){
-			System.err.println("ERROR:Bu mail ile birden fazla kullanici var");
-			System.exit(1);
-		}else{
-			while(rs.next()){
-				int personID = rs.getInt("ID");
-				String fname = rs.getString("name");
-				String lname = rs.getString("surname");
-				String mail = rs.getString("mail");
-				if(rs.getInt("jobType") == 1) // Person is an Instructor
-				{
-					boolean isAdmin = rs.getBoolean("isAdmin");
-					p = new Person(personID, fname, lname, mail, isAdmin, JobType.INSTRUCTOR);
-				}else { // Person is an Assistant
+			if(count > 1){
+				System.err.println("ERROR:Bu mail ile birden fazla kullanici var");
+				System.exit(1);
+			}else{
+				while(rs.next()){
+					int personID = rs.getInt("ID");
+					String fname = rs.getString("name");
+					String lname = rs.getString("surname");
+					String mail = rs.getString("mail");
+					if(rs.getInt("jobType") == 1) // Person is an Instructor
+					{
+						boolean isAdmin = rs.getBoolean("isAdmin");
+						p = new Person(personID, fname, lname, mail, isAdmin, JobType.INSTRUCTOR);
+					}else { // Person is an Assistant
 
+					}
 				}
 			}
+
+			c.close();
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
 		}
 
-		c.close();
-	}catch (InstantiationException | IllegalAccessException | SQLException e) {
-		e.printStackTrace();
+		return p;
 	}
 
-	return p;
-}
 
+	public ArrayList<Course> getTeachingInformationForInstructor(int instrID){
+		Connection c;
+		ArrayList<Course> coursesHistory = new ArrayList<Course>();
+		try {
+			c = connectToDatabase();
+			String sql = "Select Course_ID,Section_ID from teaches where Instructor_ID=?";
 
-public ArrayList<Course> getTeachingInformationForInstructor(int instrID){
-	Connection c;
-	ArrayList<Course> coursesHistory = new ArrayList<Course>();
-	try {
-		c = connectToDatabase();
-		String sql = "Select Course_ID,Section_ID from teaches where Instructor_ID=?";
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(1, instrID);
 
-		PreparedStatement ps = c.prepareStatement(sql);
-		ps.setInt(1, instrID);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				int courseID = rs.getInt("Course_ID");
+				int sectionID = rs.getInt("Section_ID");
 
-		ResultSet rs = ps.executeQuery();
-		while(rs.next()){
-			int courseID = rs.getInt("Course_ID");
-			int sectionID = rs.getInt("Section_ID");
+				Course course = getCourseInfoFromID(courseID);
 
-			Course course = getCourseInfoFromID(courseID);
+				coursesHistory.add(course);
+			}
+			c.close();
 
-			coursesHistory.add(course);
-		}
-		c.close();
-
-	}catch (InstantiationException | IllegalAccessException | SQLException e) {
-		e.printStackTrace();
-	}
-
-	return coursesHistory;
-}
-
-public ArrayList<AcademicStuff> getEventsForACourse(int cID){ // TODO
-	Connection c;
-	ArrayList<AcademicStuff> as = new ArrayList<AcademicStuff>();
-	AcademicStuff a = null;
-	try {
-		c = connectToDatabase();
-		String sql = "select * from section where Course_ID =? and semester =? AND year =?";
-
-		PreparedStatement ps = c.prepareStatement(sql);
-		ps.setInt(1, cID); // course id   = 1
-		ps.setString(2, selectedSemester); // fall
-		ps.setInt(3, selectedYear); // 2014
-
-		ResultSet rs = ps.executeQuery();
-		while(rs.next()){
-
-			a = new AcademicStuff();
-			a.sectionNumber = rs.getInt("sectionNumber");
-
-
-			// TODO : burada sikinti var cok if elseif 
-			Academics ac = Academics.getAcademicStuff(rs.getInt("academicType"));
-			a.type = ac;
-
-			//Getting day
-			Day d = Day.getDayFromString(rs.getString("day"));
-			TimeSlot ts = TimeSlot.getTimeSlot(rs.getInt("timeslot"));
-			Pair<Day,TimeSlot> scheduled = new Pair<Day, TimeSlot>(d, ts);
-			a.time = scheduled;
-
-			as.add(a); // add this academic stuff to arraylist
-		}
-		c.close();
-
-	}catch (InstantiationException | IllegalAccessException | SQLException e) {
-		e.printStackTrace();
-	}
-
-	return as;
-}
-
-public Course getCourseInfoFromID(int cID){
-
-	Connection c;
-	Course course = null;
-
-	try {
-		c = connectToDatabase();
-		String sql = "Select * From Course where ID =?";
-
-		PreparedStatement ps = c.prepareStatement(sql);
-		ps.setInt(1, cID);
-
-		ResultSet rs = ps.executeQuery();
-		while(rs.next()){
-			String title = rs.getString("title");
-			String deptCode = rs.getString("Department_Code");
-			int courseNumber = rs.getInt("number");
-			int asstCount = rs.getInt("assistant_count");
-
-			course = new Course(cID,title,deptCode,courseNumber,asstCount);
-			course.activities = getEventsForACourse(cID);
-		}
-		c.close();
-
-	}catch (InstantiationException | IllegalAccessException | SQLException e) {
-		e.printStackTrace();
-	}
-
-	return course;
-}
-
-public 	ArrayList<Instructor> getInstructorFromCourseID(int cID){
-
-	Connection c;
-	Instructor ins = null;
-
-	ArrayList<Instructor> list = new ArrayList<Instructor>();
-	try{
-		c= connectToDatabase();
-		String sql = "Select person.*, ins.department_id ,ins.ID as instructorID from person natural join instructor as ins where ins.ID = ( "
-				+ "select distinct  instructor_ID from teaches natural join section "
-				+ "where year = ? and semester = ? and Course_ID = ?)";
-
-		PreparedStatement ps = c.prepareStatement(sql);
-		ps.setInt(3,cID);
-		ps.setInt(1, selectedYear);
-		ps.setString(2, selectedSemester);
-
-		ResultSet rs = ps.executeQuery();
-		while(rs.next()){
-			int iID = rs.getInt("instructorID");
-			int pID = rs.getInt("ID");
-			String name = rs.getString("name");
-			String surname = rs.getString("surname");
-			String mail = rs.getString("mail");
-			boolean isAdmin = rs.getBoolean("isAdmin");
-			JobType j = JobType.getJobType(rs.getInt("jobType"));
-			Department d = getDepartmentInformation(rs.getInt("department_ID"));
-
-			ins = new Instructor(iID, pID, d);
-			ins.teaches = getTeachingInformationForInstructor(iID);
-			ins.setSuperFields(name, surname, mail, isAdmin);
-			System.out.println(ins);
-			list.add(ins);
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
 		}
 
-	}catch (InstantiationException | IllegalAccessException | SQLException e) {
-		e.printStackTrace();
+		return coursesHistory;
 	}
 
-	return list;
+	public ArrayList<AcademicStuff> getEventsForACourse(int cID){ // TODO
+		Connection c;
+		ArrayList<AcademicStuff> as = new ArrayList<AcademicStuff>();
+		AcademicStuff a = null;
+		try {
+			c = connectToDatabase();
+			String sql = "select * from section where Course_ID =? and semester =? AND year =?";
 
-}
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(1, cID); // course id   = 1
+			ps.setString(2, selectedSemester); // fall
+			ps.setInt(3, selectedYear); // 2014
 
-public void updatePassword(int pID, String password){
-	Connection c;
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
 
-	try{
-		c = connectToDatabase();
-		String sql= "UPDATE Person SET password= '?' where ID = ? ";
-		PreparedStatement ps = c.prepareStatement(sql);
-		ps.setString(1, password);
-		ps.setInt(2, pID);
+				a = new AcademicStuff();
+				a.sectionNumber = rs.getInt("sectionNumber");
 
-		ps.executeQuery();
-	}catch (InstantiationException | IllegalAccessException | SQLException e){
-		e.printStackTrace();
+
+				// TODO : burada sikinti var cok if elseif 
+				Academics ac = Academics.getAcademicStuff(rs.getInt("academicType"));
+				a.type = ac;
+
+				//Getting day
+				Day d = Day.getDayFromString(rs.getString("day"));
+				TimeSlot ts = TimeSlot.getTimeSlot(rs.getInt("timeslot"));
+				Pair<Day,TimeSlot> scheduled = new Pair<Day, TimeSlot>(d, ts);
+				a.time = scheduled;
+
+				as.add(a); // add this academic stuff to arraylist
+			}
+			c.close();
+
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return as;
 	}
-}
+
+	public Course getCourseInfoFromID(int cID){
+
+		Connection c;
+		Course course = null;
+
+		try {
+			c = connectToDatabase();
+			String sql = "Select * From Course where ID =?";
+
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(1, cID);
+
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				String title = rs.getString("title");
+				String deptCode = rs.getString("Department_Code");
+				int courseNumber = rs.getInt("number");
+				int asstCount = rs.getInt("assistant_count");
+
+				course = new Course(cID,title,deptCode,courseNumber,asstCount);
+				course.activities = getEventsForACourse(cID);
+			}
+			c.close();
+
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return course;
+	}
+
+	public 	ArrayList<Instructor> getInstructorFromCourseID(int cID){
+
+		Connection c;
+		Instructor ins = null;
+
+		ArrayList<Instructor> list = new ArrayList<Instructor>();
+		try{
+			c= connectToDatabase();
+			String sql = "Select person.*, ins.department_id ,ins.ID as instructorID from person natural join instructor as ins where ins.ID = ( "
+					+ "select distinct  instructor_ID from teaches natural join section "
+					+ "where year = ? and semester = ? and Course_ID = ?)";
+
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setInt(3,cID);
+			ps.setInt(1, selectedYear);
+			ps.setString(2, selectedSemester);
+
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()){
+				int iID = rs.getInt("instructorID");
+				int pID = rs.getInt("ID");
+				String name = rs.getString("name");
+				String surname = rs.getString("surname");
+				String mail = rs.getString("mail");
+				boolean isAdmin = rs.getBoolean("isAdmin");
+				JobType j = JobType.getJobType(rs.getInt("jobType"));
+				Department d = getDepartmentInformation(rs.getInt("department_ID"));
+
+				ins = new Instructor(iID, pID, d);
+				ins.teaches = getTeachingInformationForInstructor(iID);
+				ins.setSuperFields(name, surname, mail, isAdmin);
+				System.out.println(ins);
+				list.add(ins);
+			}
+
+		}catch (InstantiationException | IllegalAccessException | SQLException e) {
+			e.printStackTrace();
+		}
+
+		return list;
+
+	}
+
+	public void updatePassword(int pID, String password){
+		Connection c;
+		String onay = null;
+		try{
+			c = connectToDatabase();
+			String sql= "UPDATE Person SET password= ? where ID = ? ";
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setString(1, password);
+			ps.setInt(2, pID);
+
+			ps.executeUpdate();
+
+			System.out.println("Degisiklik oldu");
+			c.close();
+		}catch (InstantiationException | IllegalAccessException | SQLException e){
+			e.printStackTrace();
+		}
+	}
 
 }
