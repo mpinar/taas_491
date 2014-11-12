@@ -61,15 +61,15 @@ public class InstructorView extends JFrame {
 		
 		
 		int AssistantCount = course.setMaxAssistantCount();
+		AssistantCount = AssistantCount + 1;
 		System.out.println(AssistantCount);
 		Integer []asstCountArray = new Integer[AssistantCount];
 		int dummy = 0;
 		for (int i =0; i<AssistantCount; i++){
-			
-			dummy++;
+
 			asstCountArray[i]= dummy;
-			
-			System.out.println(dummy + " ");
+			dummy++;
+
 		}
 
 
