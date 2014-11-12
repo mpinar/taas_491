@@ -83,7 +83,7 @@ public class InstructorView extends JFrame {
 		contentPane.add(cbCourses);
 
 		JComboBox cbAsstCount = new JComboBox(asstCountArray);
-		cbAsstCount.setBounds(368, 34, 52, 27);
+		cbAsstCount.setBounds(368, 34, 61, 27);
 		
 		contentPane.add(cbAsstCount);
 
